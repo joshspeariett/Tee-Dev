@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tee Dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#shop" aria-label="Tee Dev home">
+        <span class="brand-mark">TD</span>
+        <span>Tee Dev</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#owner">Owner drops</a>
+        <a href="#community">Community</a>
+        <a href="#submit">Submit</a>
+        <a href="#ledger">Ledger</a>
+      </nav>
+    </header>
+
+    <main id="shop">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">First drop system</p>
+          <h1 id="hero-title">Bold tees from the studio and the crowd.</h1>
+          <p class="hero-text">Owner-made graphics sit next to community-submitted designs, with every preview and submission recorded in a clear design log.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#submit">Create preview</a>
+            <a class="button ghost" href="#owner">View drops</a>
+          </div>
+        </div>
+        <div class="hero-stage" aria-label="Featured T-shirt preview">
+          <div class="tee tee-midnight">
+            <div class="collar"></div>
+            <div class="print big-print">NOISE<br>MAKER</div>
+          </div>
+          <div class="drop-card">
+            <span>Logged today</span>
+            <strong id="hero-count">0 designs</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="owner" aria-labelledby="owner-title">
+        <div class="section-heading">
+          <p class="eyebrow">Owner created</p>
+          <h2 id="owner-title">Studio designs</h2>
+        </div>
+        <div class="product-grid" id="owner-grid"></div>
+      </section>
+
+      <section class="section community-band" id="community" aria-labelledby="community-title">
+        <div class="section-heading">
+          <p class="eyebrow">People submitted</p>
+          <h2 id="community-title">Community previews</h2>
+        </div>
+        <div class="product-grid" id="community-grid"></div>
+      </section>
+
+      <section class="section submit-layout" id="submit" aria-labelledby="submit-title">
+        <div class="submit-panel">
+          <p class="eyebrow">Submit and buy preview</p>
+          <h2 id="submit-title">Place your image</h2>
+          <form id="design-form">
+            <label>
+              Design name
+              <input id="design-name" name="designName" type="text" maxlength="48" placeholder="Late night logo" required>
+            </label>
+            <label>
+              Creator
+              <input id="creator-name" name="creatorName" type="text" maxlength="36" placeholder="Your name" required>
+            </label>
+            <label>
+              Image URL
+              <input id="image-url" name="imageUrl" type="url" placeholder="https://example.com/design.png" required>
+            </label>
+            <fieldset>
+              <legend>Placement</legend>
+              <label class="radio-row">
+                <input type="radio" name="placement" value="big" checked>
+                <span>Big image on chest</span>
+              </label>
+              <label class="radio-row">
+                <input type="radio" name="placement" value="small">
+                <span>Small image top right</span>
+              </label>
+            </fieldset>
+            <button class="button primary wide" type="submit">Log preview</button>
+          </form>
+        </div>
+        <div class="preview-panel" aria-live="polite">
+          <div class="tee tee-graphite" id="preview-tee">
+            <div class="collar"></div>
+            <img id="preview-image" alt="">
+            <div id="preview-fallback" class="print big-print">YOUR<br>ART</div>
+          </div>
+          <div class="preview-meta">
+            <span id="preview-name">Late night logo</span>
+            <strong id="preview-placement">Big chest print</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section ledger-section" id="ledger" aria-labelledby="ledger-title">
+        <div class="section-heading">
+          <p class="eyebrow">Design log</p>
+          <h2 id="ledger-title">Submission ledger</h2>
+        </div>
+        <div class="ledger-tools">
+          <button class="button ghost" id="export-log" type="button">Export JSONL</button>
+          <button class="button danger" id="clear-log" type="button">Clear local log</button>
+        </div>
+        <ol class="ledger" id="ledger-list"></ol>
+      </section>
+    </main>
+
+    <footer>
+      <span>Tee Dev</span>
+      <span>Scripts write to <code>logs/</code>; browser submissions store locally until a backend is added.</span>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
