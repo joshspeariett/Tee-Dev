@@ -77,7 +77,12 @@
             </label>
             <label>
               Image URL
-              <input id="image-url" name="imageUrl" type="url" placeholder="https://example.com/design.png" required>
+              <input id="image-url" name="imageUrl" type="url" placeholder="https://example.com/design.png">
+            </label>
+            <label class="file-control">
+              Upload image
+              <input id="image-file" name="imageFile" type="file" accept="image/*">
+              <span id="file-name">No file selected</span>
             </label>
             <fieldset>
               <legend>Placement</legend>

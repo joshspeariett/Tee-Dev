@@ -7,6 +7,7 @@ First iteration of a dark, sleek T-shirt website.
 - Owner-created design category.
 - Community-submitted design preview category.
 - Two community placement options: full-front print or left-chest print.
+- Image URL or local image upload for T-shirt previews.
 - Browser-based design ledger with JSONL export.
 - Top-level start/stop batch files for the local site.
 - Implementation files tucked under `_tee-dev/`.

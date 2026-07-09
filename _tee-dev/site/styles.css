@@ -433,6 +433,33 @@ input[type="url"] {
   font: 600 1rem Inter, Arial, sans-serif;
 }
 
+.file-control input {
+  width: 100%;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.file-control input::file-selector-button {
+  min-height: 42px;
+  margin-right: 12px;
+  padding: 0 14px;
+  border: 1px solid var(--acid);
+  border-radius: 4px;
+  background: var(--acid);
+  color: #090a09;
+  font: 800 0.82rem Archivo, Impact, sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#file-name {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: none;
+}
+
 fieldset {
   display: grid;
   gap: 10px;

@@ -49,6 +49,8 @@ const ledgerList = document.querySelector("#ledger-list");
 const heroCount = document.querySelector("#hero-count");
 const form = document.querySelector("#design-form");
 const imageUrlInput = document.querySelector("#image-url");
+const imageFileInput = document.querySelector("#image-file");
+const fileName = document.querySelector("#file-name");
 const designNameInput = document.querySelector("#design-name");
 const previewImage = document.querySelector("#preview-image");
 const previewFallback = document.querySelector("#preview-fallback");
@@ -56,6 +58,7 @@ const previewName = document.querySelector("#preview-name");
 const previewPlacement = document.querySelector("#preview-placement");
 const exportButton = document.querySelector("#export-log");
 const clearButton = document.querySelector("#clear-log");
+let uploadedImageData = "";
 
 function getLog() {
   return JSON.parse(localStorage.getItem(logKey) || "[]");
@@ -133,7 +136,7 @@ function renderLedger() {
 function updatePreview() {
   const placement = new FormData(form).get("placement") || "big";
   const name = designNameInput.value.trim() || "Late night logo";
-  const imageUrl = imageUrlInput.value.trim();
+  const imageUrl = imageUrlInput.value.trim() || uploadedImageData;
 
   previewName.textContent = name;
   previewPlacement.textContent = placement === "small" ? "Left-chest print" : "Full-front print";
@@ -155,14 +158,34 @@ function updatePreview() {
 
 form.addEventListener("input", updatePreview);
 
+imageFileInput.addEventListener("change", () => {
+  const file = imageFileInput.files[0];
+  uploadedImageData = "";
+  fileName.textContent = file ? file.name : "No file selected";
+
+  if (!file) {
+    updatePreview();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    uploadedImageData = reader.result;
+    imageUrlInput.value = "";
+    updatePreview();
+  });
+  reader.readAsDataURL(file);
+});
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(form);
+  const imageUrl = formData.get("imageUrl").trim() || uploadedImageData;
   const entry = {
     id: crypto.randomUUID(),
     name: formData.get("designName").trim(),
     creator: formData.get("creatorName").trim(),
-    imageUrl: formData.get("imageUrl").trim(),
+    imageUrl,
     placement: formData.get("placement"),
     createdAt: new Date().toISOString()
   };
@@ -171,6 +194,8 @@ form.addEventListener("submit", (event) => {
   renderProducts();
   renderLedger();
   form.reset();
+  uploadedImageData = "";
+  fileName.textContent = "No file selected";
   updatePreview();
 });
 
