@@ -8,7 +8,7 @@ git@github.com:joshspeariett/Tee-Dev.git
 
 ## Logging expectations
 
-- Runtime scripts append log files in `logs/`.
+- Runtime scripts append log files in top-level `logs/`.
 - Keep `logs/.gitkeep` tracked so the directory exists in fresh clones.
 - Commit source changes and meaningful log-policy changes.
 - Avoid committing private keys, tokens, generated secrets, or customer payment data.

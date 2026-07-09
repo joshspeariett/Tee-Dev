@@ -3,14 +3,14 @@ const ownerDesigns = [
     name: "Noise Maker",
     creator: "Owner Studio",
     placement: "big",
-    description: "High-contrast chest graphic for loud nights and clean silhouettes.",
+    description: "High-contrast full-front graphic for loud nights and clean silhouettes.",
     color: "acid"
   },
   {
     name: "After Hours",
     creator: "Owner Studio",
     placement: "small",
-    description: "Minimal top-right mark with a late train, last call feel.",
+    description: "Minimal left-chest mark with a late train, last call feel.",
     color: "cyan"
   },
   {
@@ -98,7 +98,7 @@ function renderCard(design, source) {
       <div class="product-info">
         <div class="tag-row">
           <span class="tag">${source === "owner" ? "Owner" : "Submitted"}</span>
-          <span class="tag">${design.placement === "small" ? "Top right" : "Chest print"}</span>
+          <span class="tag">${design.placement === "small" ? "Left chest" : "Full front"}</span>
         </div>
         <h3>${design.name}</h3>
         <p>${design.description || `Created by ${design.creator}.`}</p>
@@ -122,7 +122,7 @@ function renderLedger() {
       <li>
         <div>
           <strong>${entry.name}</strong>
-          <small> by ${entry.creator} | ${entry.placement === "small" ? "small top-right image" : "big chest image"}</small>
+          <small> by ${entry.creator} | ${entry.placement === "small" ? "left-chest print" : "full-front print"}</small>
         </div>
         <small>${new Date(entry.createdAt).toLocaleString()}</small>
       </li>
@@ -136,7 +136,7 @@ function updatePreview() {
   const imageUrl = imageUrlInput.value.trim();
 
   previewName.textContent = name;
-  previewPlacement.textContent = placement === "small" ? "Small top-right print" : "Big chest print";
+  previewPlacement.textContent = placement === "small" ? "Left-chest print" : "Full-front print";
   previewFallback.textContent = createFallbackText(name);
   previewFallback.className = `print ${placement === "small" ? "small-print" : "big-print"}`;
 

@@ -6,18 +6,27 @@ First iteration of a dark, sleek T-shirt website.
 
 - Owner-created design category.
 - Community-submitted design preview category.
-- Two community placement options: large chest image or small top-right image.
+- Two community placement options: full-front print or left-chest print.
 - Browser-based design ledger with JSONL export.
-- Script logs in `logs/` for local serving and validation.
+- Top-level start/stop batch files for the local site.
+- Implementation files tucked under `_tee-dev/`.
+- Script logs in top-level `logs/` for local serving and validation.
 
 ## Commands
 
+```bat
+Start-Site.bat
+Stop-Site.bat
+```
+
+Advanced validation:
+
 ```powershell
-npm run serve
+cd _tee-dev
 npm run validate
 ```
 
-Both scripts append logs under `logs/`.
+Scripts append logs under `logs/`.
 
 ## GitHub
 

@@ -2,8 +2,10 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const root = path.resolve(__dirname, "..");
-const logDir = path.join(root, "logs");
+const appRoot = path.resolve(__dirname, "..");
+const projectRoot = path.resolve(appRoot, "..");
+const root = path.join(appRoot, "site");
+const logDir = path.join(projectRoot, "logs");
 const port = Number(process.env.PORT || 4173);
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -14,9 +16,15 @@ const types = {
 
 fs.mkdirSync(logDir, { recursive: true });
 const logFile = path.join(logDir, "serve.log");
+const fallbackLogFile = path.join(logDir, `serve-${Date.now()}.log`);
 
 function log(message) {
-  fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${message}\n`);
+  const line = `[${new Date().toISOString()}] ${message}\n`;
+  try {
+    fs.appendFileSync(logFile, line);
+  } catch (error) {
+    fs.appendFileSync(fallbackLogFile, line);
+  }
 }
 
 const server = http.createServer((request, response) => {

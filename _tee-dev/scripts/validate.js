@@ -1,15 +1,23 @@
 const fs = require("fs");
 const path = require("path");
 
-const root = path.resolve(__dirname, "..");
-const logDir = path.join(root, "logs");
+const appRoot = path.resolve(__dirname, "..");
+const projectRoot = path.resolve(appRoot, "..");
+const root = path.join(appRoot, "site");
+const logDir = path.join(projectRoot, "logs");
 const logFile = path.join(logDir, "validate.log");
-const requiredFiles = ["index.html", "styles.css", "app.js", "package.json"];
+const fallbackLogFile = path.join(logDir, `validate-${Date.now()}.log`);
+const requiredFiles = ["index.html", "styles.css", "app.js"];
 
 fs.mkdirSync(logDir, { recursive: true });
 
 function log(message) {
-  fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${message}\n`);
+  const line = `[${new Date().toISOString()}] ${message}\n`;
+  try {
+    fs.appendFileSync(logFile, line);
+  } catch (error) {
+    fs.appendFileSync(fallbackLogFile, line);
+  }
 }
 
 let failed = false;
