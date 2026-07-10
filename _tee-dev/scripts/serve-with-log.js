@@ -7,8 +7,8 @@ const projectRoot = path.resolve(appRoot, "..");
 const root = path.join(appRoot, "site");
 const logDir = path.join(projectRoot, "logs");
 const storefrontFolders = {
-  big: "full-front",
-  small: "left-chest"
+  big: "large-designs",
+  small: "small-designs"
 };
 const imageExtensions = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"]);
 const port = Number(process.env.PORT || 4173);
@@ -82,7 +82,7 @@ function getStorefrontDesigns() {
 
     return files.length ? files : [{
       id: `${folder}/placeholder`,
-      name: placement === "big" ? "Full-front folder" : "Left-chest folder",
+      name: placement === "big" ? "Large designs" : "Small designs",
       creator: "Owner Studio",
       placement,
       imageUrl: "",
@@ -93,7 +93,7 @@ function getStorefrontDesigns() {
 }
 
 function serveDesignAsset(request, response, cleanUrl) {
-  const match = cleanUrl.match(/^\/designs\/(full-front|left-chest)\/(.+)$/);
+  const match = cleanUrl.match(/^\/designs\/(large-designs|small-designs)\/(.+)$/);
   if (!match) return false;
 
   const folder = match[1];
@@ -148,6 +148,8 @@ const server = http.createServer((request, response) => {
           imageFileName: entry.imageFileName,
           imageWidth: entry.imageWidth,
           imageHeight: entry.imageHeight,
+          originalImageWidth: entry.originalImageWidth,
+          originalImageHeight: entry.originalImageHeight,
           imageData: entry.imageData,
           createdAt: entry.createdAt,
           storedAt: new Date().toISOString()

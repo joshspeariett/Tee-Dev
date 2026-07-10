@@ -58,6 +58,7 @@ const formMessage = document.querySelector("#form-message");
 const exportButton = document.querySelector("#export-log");
 const clearButton = document.querySelector("#clear-log");
 let uploadedImageData = "";
+let fittedImageData = "";
 let currentImageDimensions = null;
 let storefrontDesigns = [...fallbackOwnerDesigns];
 
@@ -165,10 +166,10 @@ function setFormMessage(message, tone = "muted") {
 
 function updateDimensionNote() {
   const spec = getPlacementSpec();
-  dimensionNote.textContent = `${spec.label} artwork should be ${spec.width} x ${spec.height} px.`;
+  dimensionNote.textContent = `${spec.label} artwork will be fitted to ${spec.width} x ${spec.height} px.`;
 }
 
-function readImageDimensions(source) {
+function loadImage(source) {
   return new Promise((resolve, reject) => {
     if (!source) {
       resolve(null);
@@ -176,20 +177,34 @@ function readImageDimensions(source) {
     }
 
     const image = new Image();
-    image.addEventListener("load", () => {
-      resolve({
-        width: image.naturalWidth,
-        height: image.naturalHeight
-      });
-    });
+    image.crossOrigin = "anonymous";
+    image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", () => reject(new Error("Image could not be loaded")));
     image.src = source;
   });
 }
 
-async function validateCurrentArtwork(source) {
+function fitImageToSpec(image, spec) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = spec.width;
+  canvas.height = spec.height;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  const scale = Math.min(spec.width / image.naturalWidth, spec.height / image.naturalHeight);
+  const width = Math.round(image.naturalWidth * scale);
+  const height = Math.round(image.naturalHeight * scale);
+  const x = Math.round((spec.width - width) / 2);
+  const y = Math.round((spec.height - height) / 2);
+
+  context.drawImage(image, x, y, width, height);
+  return canvas.toDataURL("image/png");
+}
+
+async function fitCurrentArtwork(source) {
   if (!source) {
     currentImageDimensions = null;
+    fittedImageData = "";
     setFormMessage("");
     return false;
   }
@@ -197,27 +212,34 @@ async function validateCurrentArtwork(source) {
   const spec = getPlacementSpec();
 
   try {
-    const dimensions = await readImageDimensions(source);
-    currentImageDimensions = dimensions;
+    const image = await loadImage(source);
+    const originalDimensions = {
+      width: image.naturalWidth,
+      height: image.naturalHeight
+    };
 
-    if (!dimensions?.width || !dimensions?.height) {
+    if (!originalDimensions.width || !originalDimensions.height) {
       setFormMessage("We could not read that image size. Try a PNG or JPG.", "error");
       return false;
     }
 
-    if (dimensions.width !== spec.width || dimensions.height !== spec.height) {
-      setFormMessage(
-        `${spec.label} needs ${spec.width} x ${spec.height} px. This image is ${dimensions.width} x ${dimensions.height} px.`,
-        "error"
-      );
-      return false;
-    }
+    fittedImageData = fitImageToSpec(image, spec);
+    currentImageDimensions = {
+      width: spec.width,
+      height: spec.height,
+      originalWidth: originalDimensions.width,
+      originalHeight: originalDimensions.height
+    };
 
-    setFormMessage(`Looks good: ${dimensions.width} x ${dimensions.height} px.`, "success");
+    setFormMessage(
+      `Artwork fitted from ${originalDimensions.width} x ${originalDimensions.height} px to ${spec.width} x ${spec.height} px.`,
+      "success"
+    );
     return true;
   } catch (error) {
     currentImageDimensions = null;
-    setFormMessage("We could not load that image. Try another file or URL.", "error");
+    fittedImageData = "";
+    setFormMessage("We could not resize that image. Try uploading the file directly, or use a PNG/JPG URL that allows previewing.", "error");
     return false;
   }
 }
@@ -225,7 +247,8 @@ async function validateCurrentArtwork(source) {
 function updatePreview() {
   const placement = new FormData(form).get("placement") || "big";
   const name = designNameInput.value.trim() || "Late night logo";
-  const imageUrl = getImageSourceMode() === "url" ? imageUrlInput.value.trim() : uploadedImageData;
+  const rawImageUrl = getImageSourceMode() === "url" ? imageUrlInput.value.trim() : uploadedImageData;
+  const imageUrl = fittedImageData || rawImageUrl;
   const spec = placementSpecs[placement];
 
   previewName.textContent = name;
@@ -284,6 +307,9 @@ async function logSubmission(entry) {
 form.addEventListener("input", () => {
   updateSourceMode();
   updateDimensionNote();
+  fittedImageData = "";
+  currentImageDimensions = null;
+  setFormMessage("");
   updatePreview();
 });
 
@@ -300,40 +326,46 @@ imageFileInput.addEventListener("change", () => {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     uploadedImageData = reader.result;
+    fittedImageData = "";
     imageUrlInput.value = "";
     updatePreview();
-    validateCurrentArtwork(uploadedImageData);
+    fitCurrentArtwork(uploadedImageData).then(updatePreview);
   });
   reader.readAsDataURL(file);
 });
 
 imageUrlInput.addEventListener("change", () => {
+  fittedImageData = "";
   updatePreview();
-  validateCurrentArtwork(imageUrlInput.value.trim());
+  fitCurrentArtwork(imageUrlInput.value.trim()).then(updatePreview);
 });
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(form);
   const sourceMode = getImageSourceMode();
-  const imageUrl = sourceMode === "url" ? formData.get("imageUrl").trim() : uploadedImageData;
+  const rawImageUrl = sourceMode === "url" ? formData.get("imageUrl").trim() : uploadedImageData;
 
-  if (!imageUrl) {
+  if (!rawImageUrl) {
     updatePreview();
     return;
   }
 
-  const isValidArtwork = await validateCurrentArtwork(imageUrl);
-  if (!isValidArtwork) return;
+  if (!fittedImageData) {
+    const isFit = await fitCurrentArtwork(rawImageUrl);
+    if (!isFit) return;
+  }
 
   const entry = {
     id: crypto.randomUUID(),
     name: formData.get("designName").trim(),
     creator: formData.get("creatorName").trim(),
-    imageUrl,
+    imageUrl: fittedImageData,
     imageFileName: sourceMode === "upload" ? imageFileInput.files[0]?.name || "" : "",
     imageWidth: currentImageDimensions.width,
     imageHeight: currentImageDimensions.height,
+    originalImageWidth: currentImageDimensions.originalWidth,
+    originalImageHeight: currentImageDimensions.originalHeight,
     placement: formData.get("placement"),
     createdAt: new Date().toISOString()
   };
@@ -344,6 +376,7 @@ form.addEventListener("submit", async (event) => {
   renderLedger();
   form.reset();
   uploadedImageData = "";
+  fittedImageData = "";
   currentImageDimensions = null;
   fileName.textContent = "No file selected";
   updateSourceMode();

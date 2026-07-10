@@ -8,9 +8,9 @@ First iteration of a dark, sleek T-shirt website.
 - Community-submitted design preview category.
 - Two community placement options: full-front print or left-chest print.
 - Toggle between image URL or local image upload for T-shirt previews.
-- Artwork dimension checks: full-front requires `2400 x 3000 px`; left-chest requires `1200 x 1200 px`.
+- Artwork is auto-fitted for print previews: large designs become `2400 x 3000 px`; small designs become `1200 x 1200 px`.
 - Session-only browser previews with private backend JSONL logging.
-- Owner storefront sourced from top-level `full-front/` and `left-chest/` folders.
+- Owner storefront sourced from top-level `large-designs/` and `small-designs/` folders.
 - Top-level start/stop batch files for the local site.
 - Implementation files tucked under `_tee-dev/`.
 - Script logs in top-level `logs/` for local serving and validation.
@@ -30,6 +30,17 @@ npm run validate
 ```
 
 Scripts append logs under `logs/`. Submitted designs are written to the ignored private backend file `logs/submissions.jsonl` and are not loaded into other users' storefront views.
+
+## Loading Storefront Designs
+
+Add image files directly into the matching top-level folder:
+
+- `large-designs/` for large front designs.
+- `small-designs/` for smaller left-chest designs.
+
+Supported formats: `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.svg`, `.avif`.
+
+Refresh the site after adding files. The storefront uses the filename as the design name, so `midnight-logo.png` appears as `Midnight Logo`.
 
 ## GitHub
 

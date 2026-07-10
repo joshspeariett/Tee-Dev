@@ -48,3 +48,11 @@
 [2026-07-10T11:22:01.969Z] Server started on http://localhost:4173
 [2026-07-10T11:22:11.849Z] 200 /
 [2026-07-10T11:22:11.953Z] 200 /api/storefront-designs
+[2026-07-10T12:42:08.744Z] 200 /
+[2026-07-10T12:42:08.763Z] 200 /styles.css
+[2026-07-10T12:42:08.763Z] 200 /app.js
+[2026-07-10T12:42:08.805Z] 200 /api/storefront-designs
+[2026-07-10T12:42:08.838Z] 404 /favicon.ico
+[2026-07-10T12:46:36.637Z] Server started on http://localhost:4173
+[2026-07-10T12:46:49.147Z] 200 /api/storefront-designs
+[2026-07-10T12:46:49.667Z] 200 /
