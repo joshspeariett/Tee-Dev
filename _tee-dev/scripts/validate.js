@@ -33,7 +33,7 @@ for (const file of requiredFiles) {
 }
 
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-for (const id of ["owner", "community", "submit", "ledger"]) {
+for (const id of ["builder", "summary", "reviews"]) {
   if (!html.includes(`id="${id}"`)) {
     failed = true;
     log(`Missing section id ${id}`);

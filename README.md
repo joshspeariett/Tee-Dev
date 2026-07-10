@@ -1,17 +1,17 @@
 # Tee Dev
 
-First iteration of a dark, sleek T-shirt website.
+First iteration of a dark, sleek design-your-own T-shirt website.
 
 ## What is included
 
-- Owner-created design category.
-- Community-submitted design preview category.
-- Two community placement options: full-front print or left-chest print.
-- Toggle between image URL or local image upload for T-shirt previews.
-- Artwork is auto-fitted for print previews: large designs become `2400 x 3000 px`; small designs become `1200 x 1200 px`.
-- Product cards and the live preview show artwork on both black and white T-shirts.
-- Session-only browser previews with private backend JSONL logging.
-- Owner storefront sourced from top-level `large-designs/` and `small-designs/` folders.
+- Live design-your-own T-shirt builder.
+- Neck shape choices: crew neck, V-neck, scoop neck.
+- T-shirt colour and trim colour pickers.
+- Local image upload with size and placement controls.
+- Custom text, text colour, and text position controls.
+- Size selector with a future size-guide link placeholder.
+- Customer review section.
+- Session-local design state only; no customer design is saved or shared.
 - Top-level start/stop batch files for the local site.
 - Implementation files tucked under `_tee-dev/`.
 - Script logs in top-level `logs/` for local serving and validation.
@@ -30,18 +30,7 @@ cd _tee-dev
 npm run validate
 ```
 
-Scripts append logs under `logs/`. Submitted designs are written to the ignored private backend file `logs/submissions.jsonl` and are not loaded into other users' storefront views.
-
-## Loading Storefront Designs
-
-Add image files directly into the matching top-level folder:
-
-- `large-designs/` for large front designs.
-- `small-designs/` for smaller left-chest designs.
-
-Supported formats: `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.svg`, `.avif`.
-
-Refresh the site after adding files. The storefront uses the filename as the design name, so `midnight-logo.png` appears as `Midnight Logo`.
+Scripts append local request and validation logs under `logs/`. Customer designs stay in the current browser session only.
 
 ## GitHub
 
@@ -53,6 +42,6 @@ git@github.com:joshspeariett/Tee-Dev.git
 
 For SSH pushes without repeated prompts, add your SSH key to GitHub and make sure an SSH agent is running locally. Codex cannot safely collect private SSH keys in chat, but it can use an already configured key or help verify the remote.
 
-## Logging note
+## Privacy note
 
-This first iteration is static. User-submitted designs are logged in browser `localStorage` and can be exported as JSONL from the page. A backend or serverless function should be added later when you want shared, permanent design logging across visitors.
+This first iteration is static and local. Customer designs are not stored, uploaded, or shared by the app.
