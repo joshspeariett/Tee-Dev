@@ -49,8 +49,8 @@ const uploadPanel = document.querySelector("#upload-panel");
 const urlPanel = document.querySelector("#url-panel");
 const fileName = document.querySelector("#file-name");
 const designNameInput = document.querySelector("#design-name");
-const previewImage = document.querySelector("#preview-image");
-const previewFallback = document.querySelector("#preview-fallback");
+const previewImages = document.querySelectorAll(".preview-image");
+const previewFallbacks = document.querySelectorAll(".preview-fallback");
 const previewName = document.querySelector("#preview-name");
 const previewPlacement = document.querySelector("#preview-placement");
 const dimensionNote = document.querySelector("#dimension-note");
@@ -79,18 +79,34 @@ function createFallbackText(name) {
     .join("\n") || "YOUR\nART";
 }
 
-function teeMarkup(design) {
+function renderTee(design, colorClass) {
   const placementClass = design.placement === "small" ? "small-print" : "big-print";
   const tone = design.color || (design.placement === "small" ? "cyan" : "acid");
   const label = createFallbackText(design.name);
+  const roundedClass = design.placement === "small" || design.roundedArt ? " rounded-art" : "";
   const img = design.imageUrl
-    ? `<img class="${design.placement}" src="${design.imageUrl}" alt="${design.name} artwork">`
+    ? `<img class="${design.placement}${roundedClass}" src="${design.imageUrl}" alt="${design.name} artwork">`
     : `<div class="print ${placementClass}" data-tone="${tone}">${label}</div>`;
 
   return `
-    <div class="tee tee-graphite">
+    <div class="tee ${colorClass}">
       <div class="collar"></div>
       ${img}
+    </div>
+  `;
+}
+
+function teeMarkup(design) {
+  return `
+    <div class="tee-pair">
+      <div class="shirt-swatch">
+        ${renderTee(design, "tee-black")}
+        <span>Black</span>
+      </div>
+      <div class="shirt-swatch">
+        ${renderTee(design, "tee-white")}
+        <span>White</span>
+      </div>
     </div>
   `;
 }
@@ -228,7 +244,8 @@ async function fitCurrentArtwork(source) {
       width: spec.width,
       height: spec.height,
       originalWidth: originalDimensions.width,
-      originalHeight: originalDimensions.height
+      originalHeight: originalDimensions.height,
+      isSquare: originalDimensions.width === originalDimensions.height
     };
 
     setFormMessage(
@@ -253,19 +270,31 @@ function updatePreview() {
 
   previewName.textContent = name;
   previewPlacement.textContent = spec.label;
-  previewFallback.textContent = createFallbackText(name);
-  previewFallback.className = `print ${placement === "small" ? "small-print" : "big-print"}`;
+  const roundedArt = currentImageDimensions?.isSquare || placement === "small";
+  const fallbackText = createFallbackText(name);
 
-  previewImage.className = "";
-  previewImage.removeAttribute("src");
-  previewImage.alt = "";
-  previewFallback.style.display = "grid";
+  previewFallbacks.forEach((fallback) => {
+    fallback.textContent = fallbackText;
+    fallback.className = `print preview-fallback ${placement === "small" ? "small-print" : "big-print"}`;
+    fallback.style.display = "grid";
+  });
+
+  previewImages.forEach((image) => {
+    image.className = "preview-image";
+    image.removeAttribute("src");
+    image.alt = "";
+  });
 
   if (imageUrl) {
-    previewImage.src = imageUrl;
-    previewImage.alt = `${name} preview artwork`;
-    previewImage.classList.add(placement);
-    previewFallback.style.display = "none";
+    previewImages.forEach((image) => {
+      image.src = imageUrl;
+      image.alt = `${name} preview artwork`;
+      image.classList.add(placement);
+      if (roundedArt) image.classList.add("rounded-art");
+    });
+    previewFallbacks.forEach((fallback) => {
+      fallback.style.display = "none";
+    });
   }
 }
 
@@ -366,6 +395,7 @@ form.addEventListener("submit", async (event) => {
     imageHeight: currentImageDimensions.height,
     originalImageWidth: currentImageDimensions.originalWidth,
     originalImageHeight: currentImageDimensions.originalHeight,
+    roundedArt: currentImageDimensions.isSquare || formData.get("placement") === "small",
     placement: formData.get("placement"),
     createdAt: new Date().toISOString()
   };

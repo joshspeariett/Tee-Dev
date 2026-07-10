@@ -56,3 +56,5 @@
 [2026-07-10T12:46:36.637Z] Server started on http://localhost:4173
 [2026-07-10T12:46:49.147Z] 200 /api/storefront-designs
 [2026-07-10T12:46:49.667Z] 200 /
+[2026-07-10T12:48:51.717Z] 200 /api/storefront-designs
+[2026-07-10T12:49:09.430Z] 200 /

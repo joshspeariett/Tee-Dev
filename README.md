@@ -9,6 +9,7 @@ First iteration of a dark, sleek T-shirt website.
 - Two community placement options: full-front print or left-chest print.
 - Toggle between image URL or local image upload for T-shirt previews.
 - Artwork is auto-fitted for print previews: large designs become `2400 x 3000 px`; small designs become `1200 x 1200 px`.
+- Product cards and the live preview show artwork on both black and white T-shirts.
 - Session-only browser previews with private backend JSONL logging.
 - Owner storefront sourced from top-level `large-designs/` and `small-designs/` folders.
 - Top-level start/stop batch files for the local site.
