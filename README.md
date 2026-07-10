@@ -7,8 +7,10 @@ First iteration of a dark, sleek T-shirt website.
 - Owner-created design category.
 - Community-submitted design preview category.
 - Two community placement options: full-front print or left-chest print.
-- Image URL or local image upload for T-shirt previews.
-- Browser-based design ledger with JSONL export.
+- Toggle between image URL or local image upload for T-shirt previews.
+- Artwork dimension checks: full-front requires `2400 x 3000 px`; left-chest requires `1200 x 1200 px`.
+- Session-only browser previews with private backend JSONL logging.
+- Owner storefront sourced from top-level `full-front/` and `left-chest/` folders.
 - Top-level start/stop batch files for the local site.
 - Implementation files tucked under `_tee-dev/`.
 - Script logs in top-level `logs/` for local serving and validation.
@@ -27,7 +29,7 @@ cd _tee-dev
 npm run validate
 ```
 
-Scripts append logs under `logs/`.
+Scripts append logs under `logs/`. Submitted designs are written to the ignored private backend file `logs/submissions.jsonl` and are not loaded into other users' storefront views.
 
 ## GitHub
 

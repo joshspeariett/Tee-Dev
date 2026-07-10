@@ -1,4 +1,4 @@
-const ownerDesigns = [
+const fallbackOwnerDesigns = [
   {
     name: "Noise Maker",
     creator: "Owner Studio",
@@ -22,26 +22,21 @@ const ownerDesigns = [
   }
 ];
 
-const seedCommunityDesigns = [
-  {
-    id: "preview-001",
-    name: "Chrome Pulse",
-    creator: "Community preview",
-    placement: "big",
-    imageUrl: "",
-    createdAt: "Preview"
+const sessionKey = "tee-dev-session-designs";
+const placementSpecs = {
+  big: {
+    label: "Full-front print",
+    width: 2400,
+    height: 3000,
+    tolerance: 0
   },
-  {
-    id: "preview-002",
-    name: "Corner Static",
-    creator: "Community preview",
-    placement: "small",
-    imageUrl: "",
-    createdAt: "Preview"
+  small: {
+    label: "Left-chest print",
+    width: 1200,
+    height: 1200,
+    tolerance: 0
   }
-];
-
-const logKey = "tee-dev-design-log";
+};
 
 const ownerGrid = document.querySelector("#owner-grid");
 const communityGrid = document.querySelector("#community-grid");
@@ -50,22 +45,28 @@ const heroCount = document.querySelector("#hero-count");
 const form = document.querySelector("#design-form");
 const imageUrlInput = document.querySelector("#image-url");
 const imageFileInput = document.querySelector("#image-file");
+const uploadPanel = document.querySelector("#upload-panel");
+const urlPanel = document.querySelector("#url-panel");
 const fileName = document.querySelector("#file-name");
 const designNameInput = document.querySelector("#design-name");
 const previewImage = document.querySelector("#preview-image");
 const previewFallback = document.querySelector("#preview-fallback");
 const previewName = document.querySelector("#preview-name");
 const previewPlacement = document.querySelector("#preview-placement");
+const dimensionNote = document.querySelector("#dimension-note");
+const formMessage = document.querySelector("#form-message");
 const exportButton = document.querySelector("#export-log");
 const clearButton = document.querySelector("#clear-log");
 let uploadedImageData = "";
+let currentImageDimensions = null;
+let storefrontDesigns = [...fallbackOwnerDesigns];
 
-function getLog() {
-  return JSON.parse(localStorage.getItem(logKey) || "[]");
+function getSessionDesigns() {
+  return JSON.parse(sessionStorage.getItem(sessionKey) || "[]");
 }
 
-function setLog(entries) {
-  localStorage.setItem(logKey, JSON.stringify(entries));
+function setSessionDesigns(entries) {
+  sessionStorage.setItem(sessionKey, JSON.stringify(entries));
 }
 
 function createFallbackText(name) {
@@ -94,7 +95,7 @@ function teeMarkup(design) {
 }
 
 function renderCard(design, source) {
-  const priceLabel = source === "owner" ? "$38 drop" : "Preview buy flow";
+  const priceLabel = "Buy";
   return `
     <article class="product-card">
       <div class="product-art">${teeMarkup(design)}</div>
@@ -112,13 +113,15 @@ function renderCard(design, source) {
 }
 
 function renderProducts() {
-  ownerGrid.innerHTML = ownerDesigns.map((design) => renderCard(design, "owner")).join("");
-  const communityDesigns = [...getLog(), ...seedCommunityDesigns].slice(0, 6);
-  communityGrid.innerHTML = communityDesigns.map((design) => renderCard(design, "community")).join("");
+  ownerGrid.innerHTML = storefrontDesigns.map((design) => renderCard(design, "owner")).join("");
+  const communityDesigns = getSessionDesigns().slice(0, 6);
+  communityGrid.innerHTML = communityDesigns.length
+    ? communityDesigns.map((design) => renderCard(design, "community")).join("")
+    : `<div class="empty-state">Your added designs will appear here for this session only.</div>`;
 }
 
 function renderLedger() {
-  const entries = getLog();
+  const entries = getSessionDesigns();
   heroCount.textContent = `${entries.length} design${entries.length === 1 ? "" : "s"}`;
   ledgerList.innerHTML = entries.length
     ? entries.map((entry) => `
@@ -130,16 +133,103 @@ function renderLedger() {
         <small>${new Date(entry.createdAt).toLocaleString()}</small>
       </li>
     `).join("")
-    : `<li><div><strong>No logged submissions yet</strong><small> Create a preview to add the first ledger entry.</small></div></li>`;
+    : `<li><div><strong>No designs added yet</strong><small> Add artwork to start your session list.</small></div></li>`;
+}
+
+function getImageSourceMode() {
+  return new FormData(form).get("imageSourceMode") || "upload";
+}
+
+function updateSourceMode() {
+  const mode = getImageSourceMode();
+  uploadPanel.classList.toggle("is-hidden", mode !== "upload");
+  urlPanel.classList.toggle("is-hidden", mode !== "url");
+
+  if (mode === "upload") {
+    imageUrlInput.value = "";
+  } else {
+    uploadedImageData = "";
+    imageFileInput.value = "";
+    fileName.textContent = "No file selected";
+  }
+}
+
+function getPlacementSpec() {
+  return placementSpecs[new FormData(form).get("placement") || "big"];
+}
+
+function setFormMessage(message, tone = "muted") {
+  formMessage.textContent = message;
+  formMessage.dataset.tone = tone;
+}
+
+function updateDimensionNote() {
+  const spec = getPlacementSpec();
+  dimensionNote.textContent = `${spec.label} artwork should be ${spec.width} x ${spec.height} px.`;
+}
+
+function readImageDimensions(source) {
+  return new Promise((resolve, reject) => {
+    if (!source) {
+      resolve(null);
+      return;
+    }
+
+    const image = new Image();
+    image.addEventListener("load", () => {
+      resolve({
+        width: image.naturalWidth,
+        height: image.naturalHeight
+      });
+    });
+    image.addEventListener("error", () => reject(new Error("Image could not be loaded")));
+    image.src = source;
+  });
+}
+
+async function validateCurrentArtwork(source) {
+  if (!source) {
+    currentImageDimensions = null;
+    setFormMessage("");
+    return false;
+  }
+
+  const spec = getPlacementSpec();
+
+  try {
+    const dimensions = await readImageDimensions(source);
+    currentImageDimensions = dimensions;
+
+    if (!dimensions?.width || !dimensions?.height) {
+      setFormMessage("We could not read that image size. Try a PNG or JPG.", "error");
+      return false;
+    }
+
+    if (dimensions.width !== spec.width || dimensions.height !== spec.height) {
+      setFormMessage(
+        `${spec.label} needs ${spec.width} x ${spec.height} px. This image is ${dimensions.width} x ${dimensions.height} px.`,
+        "error"
+      );
+      return false;
+    }
+
+    setFormMessage(`Looks good: ${dimensions.width} x ${dimensions.height} px.`, "success");
+    return true;
+  } catch (error) {
+    currentImageDimensions = null;
+    setFormMessage("We could not load that image. Try another file or URL.", "error");
+    return false;
+  }
 }
 
 function updatePreview() {
   const placement = new FormData(form).get("placement") || "big";
   const name = designNameInput.value.trim() || "Late night logo";
-  const imageUrl = imageUrlInput.value.trim() || uploadedImageData;
+  const imageUrl = getImageSourceMode() === "url" ? imageUrlInput.value.trim() : uploadedImageData;
+  const spec = placementSpecs[placement];
 
   previewName.textContent = name;
-  previewPlacement.textContent = placement === "small" ? "Left-chest print" : "Full-front print";
+  previewPlacement.textContent = spec.label;
   previewFallback.textContent = createFallbackText(name);
   previewFallback.className = `print ${placement === "small" ? "small-print" : "big-print"}`;
 
@@ -156,7 +246,46 @@ function updatePreview() {
   }
 }
 
-form.addEventListener("input", updatePreview);
+async function loadStorefrontDesigns() {
+  try {
+    const response = await fetch("/api/storefront-designs");
+    if (!response.ok) return;
+    const payload = await response.json();
+    if (Array.isArray(payload.designs) && payload.designs.length) {
+      storefrontDesigns = payload.designs;
+      renderProducts();
+    }
+  } catch (error) {
+    console.warn("Storefront designs unavailable", error);
+  }
+}
+
+async function logSubmission(entry) {
+  const payload = {
+    ...entry,
+    imageSource: entry.imageFileName ? "upload" : "url",
+    imageData: entry.imageFileName ? entry.imageUrl : "",
+    imageUrl: entry.imageFileName ? "" : entry.imageUrl,
+    imageWidth: entry.imageWidth,
+    imageHeight: entry.imageHeight
+  };
+
+  try {
+    await fetch("/api/design-submissions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    console.warn("Backend submission log unavailable", error);
+  }
+}
+
+form.addEventListener("input", () => {
+  updateSourceMode();
+  updateDimensionNote();
+  updatePreview();
+});
 
 imageFileInput.addEventListener("change", () => {
   const file = imageFileInput.files[0];
@@ -173,34 +302,58 @@ imageFileInput.addEventListener("change", () => {
     uploadedImageData = reader.result;
     imageUrlInput.value = "";
     updatePreview();
+    validateCurrentArtwork(uploadedImageData);
   });
   reader.readAsDataURL(file);
 });
 
-form.addEventListener("submit", (event) => {
+imageUrlInput.addEventListener("change", () => {
+  updatePreview();
+  validateCurrentArtwork(imageUrlInput.value.trim());
+});
+
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(form);
-  const imageUrl = formData.get("imageUrl").trim() || uploadedImageData;
+  const sourceMode = getImageSourceMode();
+  const imageUrl = sourceMode === "url" ? formData.get("imageUrl").trim() : uploadedImageData;
+
+  if (!imageUrl) {
+    updatePreview();
+    return;
+  }
+
+  const isValidArtwork = await validateCurrentArtwork(imageUrl);
+  if (!isValidArtwork) return;
+
   const entry = {
     id: crypto.randomUUID(),
     name: formData.get("designName").trim(),
     creator: formData.get("creatorName").trim(),
     imageUrl,
+    imageFileName: sourceMode === "upload" ? imageFileInput.files[0]?.name || "" : "",
+    imageWidth: currentImageDimensions.width,
+    imageHeight: currentImageDimensions.height,
     placement: formData.get("placement"),
     createdAt: new Date().toISOString()
   };
 
-  setLog([entry, ...getLog()]);
+  setSessionDesigns([entry, ...getSessionDesigns()]);
+  logSubmission(entry);
   renderProducts();
   renderLedger();
   form.reset();
   uploadedImageData = "";
+  currentImageDimensions = null;
   fileName.textContent = "No file selected";
+  updateSourceMode();
+  updateDimensionNote();
   updatePreview();
+  setFormMessage("Added to your session.", "success");
 });
 
 exportButton.addEventListener("click", () => {
-  const jsonl = getLog().map((entry) => JSON.stringify(entry)).join("\n");
+  const jsonl = getSessionDesigns().map((entry) => JSON.stringify(entry)).join("\n");
   const blob = new Blob([jsonl], { type: "application/x-ndjson" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -211,11 +364,14 @@ exportButton.addEventListener("click", () => {
 });
 
 clearButton.addEventListener("click", () => {
-  setLog([]);
+  setSessionDesigns([]);
   renderProducts();
   renderLedger();
 });
 
 renderProducts();
 renderLedger();
+updateSourceMode();
+updateDimensionNote();
 updatePreview();
+loadStorefrontDesigns();

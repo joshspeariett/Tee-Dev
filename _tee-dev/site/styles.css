@@ -339,6 +339,16 @@ h2 {
   gap: 18px;
 }
 
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .product-card {
   display: grid;
   gap: 16px;
@@ -437,6 +447,31 @@ input[type="url"] {
   width: 100%;
   margin-top: 10px;
   color: var(--muted);
+}
+
+.source-panel.is-hidden {
+  display: none;
+}
+
+.dimension-note,
+.form-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.form-message:empty {
+  display: none;
+}
+
+.form-message[data-tone="error"] {
+  color: #ff91a5;
+}
+
+.form-message[data-tone="success"] {
+  color: var(--acid);
 }
 
 .file-control input::file-selector-button {

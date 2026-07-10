@@ -16,10 +16,10 @@
         <span>Tee Dev</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="#owner">Owner drops</a>
-        <a href="#community">Community</a>
+        <a href="#owner">Shop</a>
+        <a href="#community">Your designs</a>
         <a href="#submit">Submit</a>
-        <a href="#ledger">Ledger</a>
+        <a href="#ledger">Your list</a>
       </nav>
     </header>
 
@@ -30,8 +30,8 @@
           <h1 id="hero-title">Tees from the studio and the crowd.</h1>
           <p class="hero-text">Owner-made graphics sit next to community-submitted designs, with every preview and submission recorded in a clear design log.</p>
           <div class="hero-actions">
-            <a class="button primary" href="#submit">Create preview</a>
-            <a class="button ghost" href="#owner">View drops</a>
+            <a class="button primary" href="#submit">Make your tee</a>
+            <a class="button ghost" href="#owner">Shop designs</a>
           </div>
         </div>
         <div class="hero-stage" aria-label="Featured T-shirt preview">
@@ -40,7 +40,7 @@
             <div class="print big-print">NOISE<br>MAKER</div>
           </div>
           <div class="drop-card">
-            <span>Logged today</span>
+            <span>Made this session</span>
             <strong id="hero-count">0 designs</strong>
           </div>
         </div>
@@ -48,24 +48,24 @@
 
       <section class="section" id="owner" aria-labelledby="owner-title">
         <div class="section-heading">
-          <p class="eyebrow">Owner created</p>
-          <h2 id="owner-title">Studio designs</h2>
+          <p class="eyebrow">From the studio</p>
+          <h2 id="owner-title">Shop designs</h2>
         </div>
         <div class="product-grid" id="owner-grid"></div>
       </section>
 
       <section class="section community-band" id="community" aria-labelledby="community-title">
         <div class="section-heading">
-          <p class="eyebrow">People submitted</p>
-          <h2 id="community-title">Community previews</h2>
+          <p class="eyebrow">Your session</p>
+          <h2 id="community-title">Your designs</h2>
         </div>
         <div class="product-grid" id="community-grid"></div>
       </section>
 
       <section class="section submit-layout" id="submit" aria-labelledby="submit-title">
         <div class="submit-panel">
-          <p class="eyebrow">Submit and buy preview</p>
-          <h2 id="submit-title">Place your image</h2>
+          <p class="eyebrow">Make your tee</p>
+          <h2 id="submit-title">Add your artwork</h2>
           <form id="design-form">
             <label>
               Design name
@@ -75,15 +75,30 @@
               Creator
               <input id="creator-name" name="creatorName" type="text" maxlength="36" placeholder="Your name" required>
             </label>
-            <label>
-              Image URL
-              <input id="image-url" name="imageUrl" type="url" placeholder="https://example.com/design.png">
-            </label>
-            <label class="file-control">
-              Upload image
-              <input id="image-file" name="imageFile" type="file" accept="image/*">
-              <span id="file-name">No file selected</span>
-            </label>
+            <fieldset>
+              <legend>Artwork source</legend>
+              <label class="radio-row">
+                <input type="radio" name="imageSourceMode" value="upload" checked>
+                <span>Upload file</span>
+              </label>
+              <label class="radio-row">
+                <input type="radio" name="imageSourceMode" value="url">
+                <span>Use image URL</span>
+              </label>
+            </fieldset>
+            <div class="source-panel" id="upload-panel">
+              <label class="file-control">
+                Upload image
+                <input id="image-file" name="imageFile" type="file" accept="image/*">
+                <span id="file-name">No file selected</span>
+              </label>
+            </div>
+            <div class="source-panel is-hidden" id="url-panel">
+              <label>
+                Image URL
+                <input id="image-url" name="imageUrl" type="url" placeholder="https://example.com/design.png">
+              </label>
+            </div>
             <fieldset>
               <legend>Placement</legend>
               <label class="radio-row">
@@ -95,7 +110,9 @@
                 <span>Left-chest print</span>
               </label>
             </fieldset>
-            <button class="button primary wide" type="submit">Log preview</button>
+            <p class="dimension-note" id="dimension-note">Full-front artwork should be 2400 x 3000 px.</p>
+            <p class="form-message" id="form-message" role="status"></p>
+            <button class="button primary wide" type="submit">Add design</button>
           </form>
         </div>
         <div class="preview-panel" aria-live="polite">
@@ -113,12 +130,12 @@
 
       <section class="section ledger-section" id="ledger" aria-labelledby="ledger-title">
         <div class="section-heading">
-          <p class="eyebrow">Design log</p>
-          <h2 id="ledger-title">Submission ledger</h2>
+          <p class="eyebrow">This session</p>
+          <h2 id="ledger-title">Added designs</h2>
         </div>
         <div class="ledger-tools">
-          <button class="button ghost" id="export-log" type="button">Export JSONL</button>
-          <button class="button danger" id="clear-log" type="button">Clear local log</button>
+          <button class="button ghost" id="export-log" type="button">Download list</button>
+          <button class="button danger" id="clear-log" type="button">Clear my designs</button>
         </div>
         <ol class="ledger" id="ledger-list"></ol>
       </section>
@@ -126,7 +143,7 @@
 
     <footer>
       <span>Tee Dev</span>
-      <span>Scripts write to <code>logs/</code>; browser submissions store locally until a backend is added.</span>
+      <span>Scripts write to <code>logs/</code>; submitted designs display for this session and log privately to the backend.</span>
     </footer>
 
     <script src="app.js"></script>
